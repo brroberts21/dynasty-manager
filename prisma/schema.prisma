@@ -1,0 +1,300 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model allamericans {
+  all_american_id Int     @id @default(autoincrement())
+  player_id       Int
+  season_id       Int
+  team_level      String  @db.VarChar(100)
+  seasons         seasons @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "allamericans_ibfk_2")
+  players         players @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "allamericans_ibfk_1")
+
+  @@index([player_id], map: "player_id")
+  @@index([season_id], map: "season_id")
+}
+
+model awards {
+  award_id   Int     @id @default(autoincrement())
+  player_id  Int
+  season_id  Int
+  award_name String  @db.VarChar(100)
+  players    players @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "awards_ibfk_1")
+  seasons    seasons @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "awards_ibfk_2")
+
+  @@index([player_id], map: "player_id")
+  @@index([season_id], map: "season_id")
+}
+
+model coaches {
+  coach_id        Int             @id @default(autoincrement())
+  name            String          @db.VarChar(100)
+  offensive_style String?         @db.VarChar(50)
+  defensive_style String?         @db.VarChar(50)
+  dynastyevents   dynastyevents[]
+  dynastystate    dynastystate[]
+  seasons         seasons[]
+}
+
+model defensivestats {
+  pts_id           Int              @id
+  tackles          Int?
+  tfl              Int?
+  sacks            Int?
+  interceptions    Int?
+  fumbles_forced   Int?
+  touchdowns       Int?
+  playerteamseason playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "defensivestats_ibfk_1")
+}
+
+model drafted {
+  drafted_id Int     @id @default(autoincrement())
+  player_id  Int
+  round      Int
+  players    players @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "drafted_ibfk_1")
+
+  @@index([player_id], map: "player_id")
+}
+
+model dynasties {
+  dynasty_id    Int             @id @default(autoincrement())
+  name          String?         @db.VarChar(100)
+  is_active     Boolean?        @default(false)
+  dynastyevents dynastyevents[]
+  dynastystate  dynastystate?
+}
+
+model dynastyevents {
+  event_id    Int       @id @default(autoincrement())
+  dynasty_id  Int
+  description String?   @db.VarChar(1000)
+  coach_id    Int
+  year        Int
+  dynasties   dynasties @relation(fields: [dynasty_id], references: [dynasty_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastyevents_ibfk_1")
+  coaches     coaches   @relation(fields: [coach_id], references: [coach_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastyevents_ibfk_2")
+
+  @@index([coach_id], map: "coach_id")
+  @@index([dynasty_id], map: "dynasty_id")
+}
+
+model dynastystate {
+  dynasty_id        Int       @id
+  current_season_id Int
+  current_team_id   Int
+  current_coach_id  Int
+  dynasties         dynasties @relation(fields: [dynasty_id], references: [dynasty_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastystate_ibfk_1")
+  seasons           seasons   @relation(fields: [current_season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastystate_ibfk_2")
+  teams             teams     @relation(fields: [current_team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastystate_ibfk_3")
+  coaches           coaches   @relation(fields: [current_coach_id], references: [coach_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastystate_ibfk_4")
+
+  @@index([current_coach_id], map: "current_coach_id")
+  @@index([current_season_id], map: "current_season_id")
+  @@index([current_team_id], map: "current_team_id")
+}
+
+model games {
+  game_id        Int       @id @default(autoincrement())
+  season_id      Int
+  team_id        Int
+  opponent_id    Int
+  team_score     Int
+  opponent_score Int
+  location       String    @db.VarChar(100)
+  rivalry        String    @default("None") @db.VarChar(100)
+  occasion       String    @default("Regular Season") @db.VarChar(100)
+  seasons        seasons   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "games_ibfk_1")
+  teams          teams     @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "games_ibfk_2")
+  opponents      opponents @relation(fields: [opponent_id], references: [opponent_id], onDelete: NoAction, onUpdate: NoAction, map: "games_ibfk_3")
+
+  @@index([opponent_id], map: "opponent_id")
+  @@index([season_id], map: "season_id")
+  @@index([team_id], map: "team_id")
+}
+
+model kickerstats {
+  pts_id           Int              @id
+  fgm              Int?
+  fga              Int?
+  fg_pct           Decimal?         @db.Decimal(5, 2)
+  longest_fg       Int?
+  xpm              Int?
+  xpa              Int?
+  xp_pct           Decimal?         @db.Decimal(5, 2)
+  playerteamseason playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "kickerstats_ibfk_1")
+}
+
+model opponents {
+  opponent_id Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  conference  String   @db.VarChar(100)
+  city        String?  @db.VarChar(100)
+  state       String?  @db.VarChar(100)
+  latitude    Decimal? @db.Decimal(9, 6)
+  longitude   Decimal? @db.Decimal(9, 6)
+  games       games[]
+}
+
+model players {
+  player_id        Int                @id @default(autoincrement())
+  name             String             @db.VarChar(100)
+  jersey_number    Int?
+  archetype        String             @db.VarChar(100)
+  dev              String             @db.VarChar(100)
+  height           Int?
+  weight           Int?
+  allamericans     allamericans[]
+  awards           awards[]
+  drafted          drafted[]
+  playerteamseason playerteamseason[]
+  ringofhonor      ringofhonor[]
+}
+
+model playerteamseason {
+  pts_id           Int               @id @default(autoincrement())
+  player_id        Int
+  team_id          Int
+  season_id        Int
+  position         String            @db.VarChar(10)
+  initial_overall  Int?
+  final_overall    Int?
+  year             String            @default("FR") @db.VarChar(10)
+  redshirt         Boolean?          @default(false)
+  role             String            @db.VarChar(100)
+  defensivestats   defensivestats?
+  kickerstats      kickerstats?
+  players          players           @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "playerteamseason_ibfk_1")
+  teams            teams             @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "playerteamseason_ibfk_2")
+  seasons          seasons           @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "playerteamseason_ibfk_3")
+  quarterbackstats quarterbackstats?
+  skillplayerstats skillplayerstats?
+
+  @@unique([player_id, season_id], map: "unique_player_season")
+  @@index([season_id], map: "season_id")
+  @@index([team_id], map: "team_id")
+}
+
+model quarterbackstats {
+  pts_id                Int              @id
+  games_played          Int?
+  pass_yards            Int?
+  pass_touchdowns       Int?
+  pass_attempts         Int?
+  pass_completions      Int?
+  completion_percentage Decimal?         @db.Decimal(5, 2)
+  pass_ypa              Decimal?         @db.Decimal(5, 2)
+  pass_ypc              Decimal?         @db.Decimal(5, 2)
+  pass_ypg              Decimal?         @db.Decimal(5, 2)
+  pass_tdpg             Decimal?         @db.Decimal(5, 2)
+  longest_pass          Int?
+  interceptions         Int?
+  ti_ratio              Decimal?         @db.Decimal(5, 2)
+  rushes                Int?
+  rush_yards            Int?
+  rush_touchdowns       Int?
+  rush_ypa              Decimal?         @db.Decimal(5, 2)
+  longest_rush          Int?
+  sacks                 Int?
+  playerteamseason      playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "quarterbackstats_ibfk_1")
+}
+
+model recruits {
+  recruit_id Int     @id @default(autoincrement())
+  season_id  Int
+  name       String  @db.VarChar(100)
+  position   String  @db.VarChar(10)
+  archetype  String  @db.VarChar(100)
+  height     Int?
+  weight     Int?
+  stars      Int
+  gem        Boolean @default(false)
+  bust       Boolean @default(false)
+  state      String  @db.VarChar(100)
+  seasons    seasons @relation(fields: [season_id], references: [season_id])
+
+  @@index([season_id]) // optional, improves query performance
+}
+
+model ringofhonor {
+  ring_id     Int     @id @default(autoincrement())
+  player_id   Int
+  description String? @db.VarChar(1000)
+  players     players @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "ringofhonor_ibfk_1")
+
+  @@index([player_id], map: "player_id")
+}
+
+model seasons {
+  season_id         Int                @id @default(autoincrement())
+  year              Int
+  team_id           Int
+  coach_id          Int
+  coach_role        String             @db.VarChar(100)
+  offensive_overall Int?
+  defensive_overall Int?
+  overall           Int?
+  wins              Int?               @default(0)
+  losses            Int?               @default(0)
+  final_rank        Int?
+  conf_champ        Boolean?           @default(false)
+  bowl_game         Boolean?           @default(false)
+  championship      Boolean?           @default(false)
+  recruiting_rank   Int?
+  dynastystate      dynastystate[]
+  games             games[]
+  playerteamseason  playerteamseason[]
+  recruits          recruits[]
+  teams             teams              @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "seasons_ibfk_1")
+  coaches           coaches            @relation(fields: [coach_id], references: [coach_id], onDelete: NoAction, onUpdate: NoAction, map: "seasons_ibfk_2")
+  allamericans      allamericans[]
+  awards            awards[]
+
+  @@index([coach_id], map: "coach_id")
+  @@index([team_id], map: "team_id")
+}
+
+model skillplayerstats {
+  pts_id              Int              @id
+  games_played        Int?
+  rushes              Int?
+  rush_yards          Int?
+  rush_touchdowns     Int?
+  rush_ypc            Decimal?         @db.Decimal(5, 2)
+  rush_ypg            Decimal?         @db.Decimal(5, 2)
+  rush_tdpg           Decimal?         @db.Decimal(5, 2)
+  yards_after_contact Int?
+  explosive_rush      Int?
+  longest_rush        Int?
+  rec                 Int?
+  rec_yards           Int?
+  rec_touchdowns      Int?
+  rec_ypc             Decimal?         @db.Decimal(5, 2)
+  rec_ypg             Decimal?         @db.Decimal(5, 2)
+  rec_tdpg            Decimal?         @db.Decimal(5, 2)
+  run_after_catch     Int?
+  longest_catch       Int?
+  playerteamseason    playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "skillplayerstats_ibfk_1")
+}
+
+model teams {
+  team_id          Int                @id @default(autoincrement())
+  name             String             @db.VarChar(100)
+  conference       String?            @db.VarChar(100)
+  city             String?            @db.VarChar(100)
+  state            String?            @db.VarChar(100)
+  latitude         Decimal?           @db.Decimal(9, 6)
+  longitude        Decimal?           @db.Decimal(9, 6)
+  primary_color    String?            @db.VarChar(100)
+  secondary_color  String?            @db.VarChar(100)
+  tertiary_color   String?            @db.VarChar(100)
+  logo_url         String?            @db.VarChar(100)
+  dynastystate     dynastystate[]
+  games            games[]
+  playerteamseason playerteamseason[]
+  seasons          seasons[]
+}
