@@ -20,7 +20,8 @@ export async function POST(request: NextRequest) {
             primary_color: body.primary_color,
             secondary_color: body.secondary_color,
             tertiary_color: body.tertiary_color,
-            logo_url: body.logo_url
+            logo_url: body.logo_url,
+            stadium: body.stadium
         }
     });
     return NextResponse.json(team);

@@ -6,9 +6,10 @@ interface Props {
   onSubmit: (data: Coach) => void;
   onBack?: () => void;
   initialData?: Coach;
+  modalId: string;
 }
 
-const CreateCoach = ({ onSubmit, onBack, initialData }: Props) => {
+const CreateCoach = ({ onSubmit, onBack, initialData, modalId }: Props) => {
   const [name, setName] = useState(initialData?.name || "");
   const [offensiveStyle, setOffensiveStyle] = useState(
     initialData?.offensive_style || ""
@@ -68,7 +69,7 @@ const CreateCoach = ({ onSubmit, onBack, initialData }: Props) => {
         <button
           type="button"
           className="btn btn-error"
-          onClick={() => closeModal("dynasty-creation-wizard-modal")}
+          onClick={() => closeModal(modalId)}
         >
           Cancel
         </button>

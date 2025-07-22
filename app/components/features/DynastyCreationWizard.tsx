@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import Stepper from "@/app/components/ui/Stepper";
-import CreateDynasty from "@/app/components/forms/CreateDynasty";
-import CreateCoach from "@/app/components/forms/CreateCoach";
-import CreateTeam from "@/app/components/forms/CreateTeam";
-import CreateSeason from "@/app/components/forms/CreateSeason";
+import CreateDynasty from "@/app/components/forms/DynastyForm";
+import CreateCoach from "@/app/components/forms/CoachForm";
+import CreateTeam from "@/app/components/forms/TeamForm";
+import CreateSeason from "@/app/components/forms/SeasonForm";
 import { Dynasty, Coach, Team, Season } from "@/app/types";
 import DynastyConfirmation from "@/app/components/features/Confirmation";
 import { closeModal } from "@/app/hooks/components/useModal";
-import { useDynastyCreation } from "@/app/hooks/updates/useDynastyCreation";
+import { useDynastyCreation } from "@/app/hooks/creates/useDynastyCreation";
 
 const DynastyCreationWizard = () => {
   const stepLabels = [
@@ -70,6 +70,7 @@ const DynastyCreationWizard = () => {
             setStep(step + 1);
           }}
           initialData={dynasty}
+          modalId="dynasty-creation-wizard-modal"
         />
       )}
       {step === 2 && (
@@ -80,6 +81,7 @@ const DynastyCreationWizard = () => {
           }}
           onBack={handleBack}
           initialData={coach}
+          modalId="dynasty-creation-wizard-modal"
         />
       )}
       {step === 3 && (
@@ -90,6 +92,7 @@ const DynastyCreationWizard = () => {
           }}
           onBack={handleBack}
           initialData={team}
+          modalId="dynasty-creation-wizard-modal"
         />
       )}
       {step === 4 && (
@@ -100,6 +103,7 @@ const DynastyCreationWizard = () => {
           }}
           onBack={handleBack}
           initialData={season}
+          modalId="dynasty-creation-wizard-modal"
         />
       )}
       {step === 5 && (

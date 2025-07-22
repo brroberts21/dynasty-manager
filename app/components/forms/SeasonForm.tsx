@@ -6,9 +6,10 @@ interface Props {
   onSubmit: (data: Season) => void;
   onBack?: () => void;
   initialData?: Season;
+  modalId: string;
 }
 
-const CreateSeason = ({ onSubmit, onBack, initialData }: Props) => {
+const CreateSeason = ({ onSubmit, onBack, initialData, modalId }: Props) => {
   const [year, setYear] = useState(initialData?.year || 0);
   const [coachRole, setCoachRole] = useState(initialData?.coach_role || "");
 
@@ -65,7 +66,7 @@ const CreateSeason = ({ onSubmit, onBack, initialData }: Props) => {
         <button
           type="button"
           className="btn btn-error"
-          onClick={() => closeModal("dynasty-creation-wizard-modal")}
+          onClick={() => closeModal(modalId)}
         >
           Cancel
         </button>

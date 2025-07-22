@@ -9,27 +9,21 @@ datasource db {
 }
 
 model allamericans {
-  all_american_id Int     @id @default(autoincrement())
-  player_id       Int
-  season_id       Int
-  team_level      String  @db.VarChar(100)
-  seasons         seasons @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "allamericans_ibfk_2")
-  players         players @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "allamericans_ibfk_1")
+  all_american_id  Int              @id @default(autoincrement())
+  pts_id           Int
+  team_level       String           @db.VarChar(100)
+  playerteamseason playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "allamericans_ibfk_1")
 
-  @@index([player_id], map: "player_id")
-  @@index([season_id], map: "season_id")
+  @@index([pts_id], map: "pts_id")
 }
 
 model awards {
-  award_id   Int     @id @default(autoincrement())
-  player_id  Int
-  season_id  Int
-  award_name String  @db.VarChar(100)
-  players    players @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "awards_ibfk_1")
-  seasons    seasons @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "awards_ibfk_2")
+  award_id         Int              @id @default(autoincrement())
+  pts_id           Int
+  award_name       String           @db.VarChar(100)
+  playerteamseason playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "awards_ibfk_1")
 
-  @@index([player_id], map: "player_id")
-  @@index([season_id], map: "season_id")
+  @@index([pts_id], map: "pts_id")
 }
 
 model coaches {
@@ -63,24 +57,22 @@ model drafted {
 }
 
 model dynasties {
-  dynasty_id    Int             @id @default(autoincrement())
-  name          String?         @db.VarChar(100)
-  is_active     Boolean?        @default(false)
-  dynastyevents dynastyevents[]
-  dynastystate  dynastystate?
+  dynasty_id   Int           @id @default(autoincrement())
+  name         String?       @db.VarChar(100)
+  is_active    Boolean?      @default(false)
+  dynastystate dynastystate?
 }
 
 model dynastyevents {
-  event_id    Int       @id @default(autoincrement())
-  dynasty_id  Int
-  description String?   @db.VarChar(1000)
+  event_id    Int     @id @default(autoincrement())
+  header      String? @db.VarChar(250)
+  description String? @db.VarChar(1000)
+  time        String? @db.VarChar(100)
   coach_id    Int
   year        Int
-  dynasties   dynasties @relation(fields: [dynasty_id], references: [dynasty_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastyevents_ibfk_1")
-  coaches     coaches   @relation(fields: [coach_id], references: [coach_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastyevents_ibfk_2")
+  coaches     coaches @relation(fields: [coach_id], references: [coach_id], onDelete: NoAction, onUpdate: NoAction, map: "dynastyevents_ibfk_1")
 
   @@index([coach_id], map: "coach_id")
-  @@index([dynasty_id], map: "dynasty_id")
 }
 
 model dynastystate {
@@ -99,45 +91,24 @@ model dynastystate {
 }
 
 model games {
-  game_id        Int       @id @default(autoincrement())
+  game_id        Int      @id @default(autoincrement())
   season_id      Int
   team_id        Int
   opponent_id    Int
   team_score     Int
   opponent_score Int
-  location       String    @db.VarChar(100)
-  rivalry        String    @default("None") @db.VarChar(100)
-  occasion       String    @default("Regular Season") @db.VarChar(100)
-  seasons        seasons   @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "games_ibfk_1")
-  teams          teams     @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "games_ibfk_2")
-  opponents      opponents @relation(fields: [opponent_id], references: [opponent_id], onDelete: NoAction, onUpdate: NoAction, map: "games_ibfk_3")
+  week           Int?
+  conference     Boolean? @default(false)
+  location       String   @db.VarChar(100)
+  rivalry        String   @default("None") @db.VarChar(100)
+  occasion       String   @default("Regular Season") @db.VarChar(100)
+  seasons        seasons  @relation(fields: [season_id], references: [season_id], map: "games_ibfk_1")
+  teams          teams    @relation("GameTeam", fields: [team_id], references: [team_id], map: "games_ibfk_2")
+  opponent       teams    @relation("OpponentTeam", fields: [opponent_id], references: [team_id], map: "games_ibfk_3")
 
   @@index([opponent_id], map: "opponent_id")
   @@index([season_id], map: "season_id")
   @@index([team_id], map: "team_id")
-}
-
-model kickerstats {
-  pts_id           Int              @id
-  fgm              Int?
-  fga              Int?
-  fg_pct           Decimal?         @db.Decimal(5, 2)
-  longest_fg       Int?
-  xpm              Int?
-  xpa              Int?
-  xp_pct           Decimal?         @db.Decimal(5, 2)
-  playerteamseason playerteamseason @relation(fields: [pts_id], references: [pts_id], onDelete: NoAction, onUpdate: NoAction, map: "kickerstats_ibfk_1")
-}
-
-model opponents {
-  opponent_id Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  conference  String   @db.VarChar(100)
-  city        String?  @db.VarChar(100)
-  state       String?  @db.VarChar(100)
-  latitude    Decimal? @db.Decimal(9, 6)
-  longitude   Decimal? @db.Decimal(9, 6)
-  games       games[]
 }
 
 model players {
@@ -148,8 +119,6 @@ model players {
   dev              String             @db.VarChar(100)
   height           Int?
   weight           Int?
-  allamericans     allamericans[]
-  awards           awards[]
   drafted          drafted[]
   playerteamseason playerteamseason[]
   ringofhonor      ringofhonor[]
@@ -166,8 +135,9 @@ model playerteamseason {
   year             String            @default("FR") @db.VarChar(10)
   redshirt         Boolean?          @default(false)
   role             String            @db.VarChar(100)
+  allamericans     allamericans[]
+  awards           awards[]
   defensivestats   defensivestats?
-  kickerstats      kickerstats?
   players          players           @relation(fields: [player_id], references: [player_id], onDelete: NoAction, onUpdate: NoAction, map: "playerteamseason_ibfk_1")
   teams            teams             @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "playerteamseason_ibfk_2")
   seasons          seasons           @relation(fields: [season_id], references: [season_id], onDelete: NoAction, onUpdate: NoAction, map: "playerteamseason_ibfk_3")
@@ -238,12 +208,7 @@ model seasons {
   offensive_overall Int?
   defensive_overall Int?
   overall           Int?
-  wins              Int?               @default(0)
-  losses            Int?               @default(0)
   final_rank        Int?
-  conf_champ        Boolean?           @default(false)
-  bowl_game         Boolean?           @default(false)
-  championship      Boolean?           @default(false)
   recruiting_rank   Int?
   dynastystate      dynastystate[]
   games             games[]
@@ -251,8 +216,6 @@ model seasons {
   recruits          recruits[]
   teams             teams              @relation(fields: [team_id], references: [team_id], onDelete: NoAction, onUpdate: NoAction, map: "seasons_ibfk_1")
   coaches           coaches            @relation(fields: [coach_id], references: [coach_id], onDelete: NoAction, onUpdate: NoAction, map: "seasons_ibfk_2")
-  allamericans      allamericans[]
-  awards            awards[]
 
   @@index([coach_id], map: "coach_id")
   @@index([team_id], map: "team_id")
@@ -282,19 +245,23 @@ model skillplayerstats {
 }
 
 model teams {
-  team_id          Int                @id @default(autoincrement())
-  name             String             @db.VarChar(100)
-  conference       String?            @db.VarChar(100)
-  city             String?            @db.VarChar(100)
-  state            String?            @db.VarChar(100)
-  latitude         Decimal?           @db.Decimal(9, 6)
-  longitude        Decimal?           @db.Decimal(9, 6)
-  primary_color    String?            @db.VarChar(100)
-  secondary_color  String?            @db.VarChar(100)
-  tertiary_color   String?            @db.VarChar(100)
-  logo_url         String?            @db.VarChar(100)
+  team_id         Int      @id @default(autoincrement())
+  name            String   @db.VarChar(100)
+  conference      String?  @db.VarChar(100)
+  city            String?  @db.VarChar(100)
+  state           String?  @db.VarChar(100)
+  latitude        Decimal? @db.Decimal(9, 6)
+  longitude       Decimal? @db.Decimal(9, 6)
+  stadium         String?  @db.VarChar(100)
+  primary_color   String?  @db.VarChar(100)
+  secondary_color String?  @db.VarChar(100)
+  tertiary_color  String?  @db.VarChar(100)
+  logo_url        String?  @db.VarChar(100)
+
   dynastystate     dynastystate[]
-  games            games[]
   playerteamseason playerteamseason[]
   seasons          seasons[]
+
+  games_as_team     games[] @relation("GameTeam")
+  games_as_opponent games[] @relation("OpponentTeam")
 }

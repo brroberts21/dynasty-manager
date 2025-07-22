@@ -1,45 +1,45 @@
-import React, { useState } from "react";
+import React from "react";
 import { Team } from "@/app/types";
 import { closeModal } from "@/app/hooks/components/useModal";
+import { usePopulateForm } from "@/app/hooks/components/usePopulateForm";
 
 interface Props {
   onSubmit: (data: Team) => void;
   onBack?: () => void;
   initialData?: Team;
+  modalId: string;
 }
 
-const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
-  const [name, setName] = useState(initialData?.name || "");
-  const [conference, setConference] = useState(initialData?.conference || "");
-  const [city, setCity] = useState(initialData?.city || "");
-  const [state, setState] = useState(initialData?.state || "");
-  const [latitude, setLatitude] = useState(initialData?.latitude || 0);
-  const [longitude, setLongitude] = useState(initialData?.longitude || 0);
-  const [primaryColor, setPrimaryColor] = useState(
-    initialData?.primary_color || ""
+const CreateTeam = ({ onSubmit, onBack, initialData, modalId }: Props) => {
+  // Default values for new team creation - memoized to prevent re-renders
+  const defaultTeamValues = React.useMemo<Partial<Team>>(
+    () => ({
+      name: "",
+      conference: "",
+      city: "",
+      state: "",
+      latitude: 0,
+      longitude: 0,
+      primary_color: "",
+      secondary_color: "",
+      tertiary_color: "",
+      logo_url: "",
+      stadium: "",
+    }),
+    []
   );
-  const [secondaryColor, setSecondaryColor] = useState(
-    initialData?.secondary_color || ""
-  );
-  const [tertiaryColor, setTertiaryColor] = useState(
-    initialData?.tertiary_color || ""
-  );
-  const [logoUrl, setLogoUrl] = useState(initialData?.logo_url || "");
+
+  const { formData, updateField, getFieldValue, isPopulated } =
+    usePopulateForm<Team>(initialData || null, defaultTeamValues);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      name,
-      conference,
-      city,
-      state,
-      latitude,
-      longitude,
-      primary_color: primaryColor,
-      secondary_color: secondaryColor,
-      tertiary_color: tertiaryColor,
-      logo_url: logoUrl,
-    });
+    if (formData) {
+      onSubmit({
+        ...formData,
+        team_id: initialData?.team_id,
+      });
+    }
   };
 
   return (
@@ -50,8 +50,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter team name..."
           className="input"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={getFieldValue("name")}
+          onChange={(e) => updateField("name", e.target.value)}
           required
         />
         <label>Conference</label>
@@ -59,8 +59,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter conference..."
           className="input"
-          value={conference}
-          onChange={(e) => setConference(e.target.value)}
+          value={getFieldValue("conference")}
+          onChange={(e) => updateField("conference", e.target.value)}
           required
         />
         <label>City</label>
@@ -68,8 +68,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter city..."
           className="input"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
+          value={getFieldValue("city")}
+          onChange={(e) => updateField("city", e.target.value)}
           required
         />
         <label>State</label>
@@ -77,8 +77,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter state..."
           className="input"
-          value={state}
-          onChange={(e) => setState(e.target.value)}
+          value={getFieldValue("state")}
+          onChange={(e) => updateField("state", e.target.value)}
           required
         />
         <label>Latitude</label>
@@ -86,8 +86,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="number"
           placeholder="Enter latitude..."
           className="input"
-          value={latitude}
-          onChange={(e) => setLatitude(Number(e.target.value))}
+          value={getFieldValue("latitude")}
+          onChange={(e) => updateField("latitude", Number(e.target.value))}
           required
         />
         <label>Longitude</label>
@@ -95,8 +95,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="number"
           placeholder="Enter longitude..."
           className="input"
-          value={longitude}
-          onChange={(e) => setLongitude(Number(e.target.value))}
+          value={getFieldValue("longitude")}
+          onChange={(e) => updateField("longitude", Number(e.target.value))}
           required
         />
         <label>Primary Color</label>
@@ -104,8 +104,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter primary color..."
           className="input"
-          value={primaryColor}
-          onChange={(e) => setPrimaryColor(e.target.value)}
+          value={getFieldValue("primary_color")}
+          onChange={(e) => updateField("primary_color", e.target.value)}
           required
         />
         <label>Secondary Color</label>
@@ -113,8 +113,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter secondary color..."
           className="input"
-          value={secondaryColor}
-          onChange={(e) => setSecondaryColor(e.target.value)}
+          value={getFieldValue("secondary_color")}
+          onChange={(e) => updateField("secondary_color", e.target.value)}
           required
         />
         <label>Tertiary Color</label>
@@ -122,8 +122,8 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter tertiary color..."
           className="input"
-          value={tertiaryColor}
-          onChange={(e) => setTertiaryColor(e.target.value)}
+          value={getFieldValue("tertiary_color")}
+          onChange={(e) => updateField("tertiary_color", e.target.value)}
           required
         />
         <label>Logo Url</label>
@@ -131,8 +131,17 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           type="text"
           placeholder="Enter logo..."
           className="input"
-          value={logoUrl}
-          onChange={(e) => setLogoUrl(e.target.value)}
+          value={getFieldValue("logo_url")}
+          onChange={(e) => updateField("logo_url", e.target.value)}
+          required
+        />
+        <label>Stadium</label>
+        <input
+          type="text"
+          placeholder="Enter stadium..."
+          className="input"
+          value={getFieldValue("stadium")}
+          onChange={(e) => updateField("stadium", e.target.value)}
           required
         />
         {onBack && (
@@ -141,12 +150,12 @@ const CreateTeam = ({ onSubmit, onBack, initialData }: Props) => {
           </button>
         )}
         <button type="submit" className="btn btn-primary">
-          Save Team
+          {isPopulated ? "Update Team" : "Create Team"}
         </button>
         <button
           type="button"
           className="btn btn-error"
-          onClick={() => closeModal("dynasty-creation-wizard-modal")}
+          onClick={() => closeModal(modalId)}
         >
           Cancel
         </button>

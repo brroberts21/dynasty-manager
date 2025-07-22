@@ -11,8 +11,7 @@ export async function POST(request: NextRequest) {
   const all_american = await prisma.allamericans.create({
     data: {
       all_american_id: body.all_american_id,
-      player_id: body.player_id,
-      season_id: body.season_id,
+      pts_id: body.pts_id,
       team_level: body.team_level,
     },
   });

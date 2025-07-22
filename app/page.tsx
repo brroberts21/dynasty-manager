@@ -1,13 +1,14 @@
 "use client";
 import Card from "./components/ui/Card";
 import HomeNavCard from "./components/features/HomeNavCard";
+import Header from "./components/ui/Header";
 import { links } from "./constants";
 import { ScaleLoader } from "react-spinners";
 import { useFetchActiveDynasty } from "./hooks/fetches/useFetchActiveDynasty";
+import { FaStar } from "react-icons/fa";
 
 export default function Home() {
   const { activeDynasty, isLoading } = useFetchActiveDynasty();
-  console.log(activeDynasty);
   return isLoading ? (
     <div className="flex justify-center items-center h-screen">
       <ScaleLoader color="rgba(13, 76, 234, 1)" />
@@ -15,7 +16,8 @@ export default function Home() {
   ) : (
     <>
       <div className="p-4 ">
-        <h1 className="text-3xl font-bold">Welcome to Dynasty Manager!</h1>
+        <Header title="Dynasty Home" />
+
         <br />
         {activeDynasty ? (
           <div className="flex gap-4">

@@ -11,8 +11,9 @@ export async function POST(request: NextRequest) {
   const dynasty_event = await prisma.dynastyevents.create({
     data: {
       event_id: body.event_id,
-      dynasty_id: body.dynasty_id,
+      header: body.header,
       description: body.description,
+      time: body.time,
       coach_id: body.coach_id,
       year: body.year
     },

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { DynastyState } from "@/app/types";
 
-export function useDynastyStateFetch() {
+export function useFetchDynastyStates() {
   const [dynastyState, setDynastyState] = useState<DynastyState[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

@@ -2,30 +2,34 @@
 import React from "react";
 import Table from "../components/ui/Table";
 import Modal from "../components/ui/Modal";
+import Header from "../components/ui/Header";
+import Subheader from "../components/ui/Subheader";
 import DynastyCreationWizard from "../components/features/DynastyCreationWizard";
 import { ScaleLoader } from "react-spinners";
-import { useDynastyStateFetch } from "../hooks/fetches/useDynastyStateFetch";
+import { useFetchDynastyStates } from "../hooks/fetches/useFetchDynastyStates";
+import { useActivateDynasty } from "../hooks/updates/useActivateDynasty";
 import { useFetchThemes } from "../hooks/fetches/useFetchThemes";
 import { closeModal, openModal } from "../hooks/components/useModal";
 
 const Settings = () => {
-  const { dynastyState, isLoading } = useDynastyStateFetch();
+  const { dynastyState, isLoading } = useFetchDynastyStates();
   const { themes, isLoading: themesLoading } = useFetchThemes();
+  const {
+    isLoading: activateLoading,
+    error,
+    isSuccess,
+    activateDynasty,
+  } = useActivateDynasty();
   return (
     <>
+      <Header title="Settings" />
       <div>
-        {/* Main header with underline */}
-        <h1 className="text-3xl font-bold mb-2">Settings</h1>
-        <div className="h-1 w-16 bg-primary rounded mb-6" />
-
         {/* Section: Set Active Dynasty */}
-        <h3 className="text-xl font-semibold mt-6 mb-2 border-l-4 border-primary pl-3">
-          Set the Active Dynasty
-        </h3>
+        <Subheader title="Set the Active Dynasty" />
         <p className="pb-4">
           In this section, users can create new dynasties, set the active
           dynasty, and delete dynasties. Creating a new dynasty will create a
-          new coach, team, and season, which culmiates into a new dynasty. 
+          new coach, team, and season, which culmiates into a new dynasty.
         </p>
         {isLoading ? (
           <div className="flex justify-center items-center">
@@ -41,20 +45,12 @@ const Settings = () => {
               Active: dynasty.is_active ? "Yes" : "No",
               Activate: (
                 <div className="flex justify-center gap-4">
-                  {dynasty.is_active ? (
-                    <button
-                      className="text-orange-500 hover:underline transition-colors"
-                      onClick={() => {
-                        // TODO: Implement deactivate/activate logic and make sure that it is correct
-                      }}
-                    >
-                      Deactivate
-                    </button>
-                  ) : (
+                  {dynasty.is_active ? null : (
                     <button
                       className="text-blue-700 hover:underline transition-colors"
                       onClick={() => {
-                        // TODO: Implement deactivate/activate logic and make sure that it is correct
+                        activateDynasty(dynasty.dynasty_id);
+                        window.location.reload();
                       }}
                     >
                       Activate
@@ -80,9 +76,7 @@ const Settings = () => {
         </button>
 
         {/* Section: Themes for the Site */}
-        <h3 className="text-xl font-semibold mt-8 mb-2 border-l-4 border-primary pl-3">
-          Themes for the Site
-        </h3>
+        <Subheader title="Themes for the Site" />
         {themesLoading ? (
           <div className="flex justify-center items-center">
             <ScaleLoader color="rgba(13, 76, 234, 1)" />
